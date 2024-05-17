@@ -14,14 +14,28 @@ const modifyStyle = (ele, style) => {
     }
 }
 
-const bg = 'api/imgs/FloorPaper.jpg'
+const bg = 'api/imgs/FloorPaper.jpg';
+const api = 'api/v1';
+const debug = true;
 
 const background = newEle('div', document.body, {
     id: 'bg'
-})
+});
 const main = newEle('div', document.body, {
     id: 'main'
-})
+});
+const messagesHolder = newEle('div', main, {
+    id: 'messagesHolder'
+});
+
+const chatfunc = (name,content) => {
+    newEle('span', messagesHolder, {
+        class: 'message',
+        innerText: `[${name}]: ${content}`
+    });
+}
+const chatRequest = (content) => {
+}
 
 modifyStyle(document.body, {
     backgroundColor: '#000',
@@ -45,17 +59,63 @@ modifyStyle(background, {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'column',
-    // filter: 'blur(1px)'
+    zIndex: '-1'
 });
 modifyStyle(main, {
     width: '95%',
     height: '95%',
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
     flexDirection: 'column',
     backgroundColor: 'rgba(0,0,0,.5)',
-    filter: 'blur(5px)',
+    backdropFilter: 'blur(5px)',
+    borderRadius: '15px',
     margin: 'auto',
-    backdropFilter: 'blur(2.5px)'
+    color: '#fff',
 });
+modifyStyle(messagesHolder, {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'auto',
+    padding: '1rem',
+    textAlign: 'left',
+    fontSize: 'clamp(1rem, 2.5vw, 2.5rem)',
+    fontFamily: 'Consolas',
+    fontWeight: 'bold',
+    scrollbarColor: '#aa2500 #000',
+    scrollbarWidth: 'auto',
+});
+// let Username = null;
+// let promptMsg = 'Enter username:';
+// const AcceptedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
+// while (Username == null || Username == '' || !Username.split('').every(char => AcceptedChars.includes(char))) {
+//     Username = prompt(promptMsg).trim();
+//     promptMsg = 'Usernames can only contain A-Z,a-z,1-9 and underscores.\nEnter username:';
+// }
+let Username = 'Placeholder'
+
+async function getMessages() {
+    // return await fetch(`${api}/Messages.json`).then(response => {
+    //     if (response.ok) {
+    //         return response.json();
+    //     } else {
+    //         alert(`Failed to load messages. Server responded with HTTP ${response.status};\n${response.statusText}`);
+    //         location.reload();
+    //     }
+    // });
+    const response = await fetch(`${api}/Messages.json`);
+    if (!response.ok) {
+        alert(`Failed to load messages. Server responded with HTTP ${response.status};\n${response.statusText}`);
+        location.reload();
+    }
+    return response.json();
+}
+(async () => {
+    const messages = await getMessages();
+    print(messages); /* prints arr */
+    messages.forEach(message => { /* typerror, I'm going insane */
+        chatfunc(message.Author, message.Content);
+    });
+    chatfunc('System', `Welcome, ${Username}!`);
+})();
