@@ -86,36 +86,53 @@ modifyStyle(messagesHolder, {
     scrollbarColor: '#aa2500 #000',
     scrollbarWidth: 'auto',
 });
-// let Username = null;
-// let promptMsg = 'Enter username:';
-// const AcceptedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
-// while (Username == null || Username == '' || !Username.split('').every(char => AcceptedChars.includes(char))) {
-//     Username = prompt(promptMsg).trim();
-//     promptMsg = 'Usernames can only contain A-Z,a-z,1-9 and underscores.\nEnter username:';
-// }
-let Username = 'Placeholder'
-
-async function getMessages() {
-    // return await fetch(`${api}/Messages.json`).then(response => {
-    //     if (response.ok) {
-    //         return response.json();
-    //     } else {
-    //         alert(`Failed to load messages. Server responded with HTTP ${response.status};\n${response.statusText}`);
-    //         location.reload();
-    //     }
-    // });
-    const response = await fetch(`${api}/Messages.json`);
-    if (!response.ok) {
-        alert(`Failed to load messages. Server responded with HTTP ${response.status};\n${response.statusText}`);
+let Username = null;
+let promptMsg = 'Enter username:';
+const AcceptedChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
+while (Username == null || Username == '' || !Username.split('').every(char => AcceptedChars.includes(char))) {
+    Username = prompt(promptMsg).trim();
+    promptMsg = 'Usernames can only contain A-Z,a-z,1-9 and underscores.\nEnter username:';
+}
+fetch(`${api}/Messages.json`).then(response => {
+    if (response.ok) {
+        return response.json();
+    } else {
+        alert(`Failed to load messages. Server responded with HTTP ${response.status} ${response.statusText}`);
         location.reload();
     }
-    return response.json();
-}
-(async () => {
-    const messages = await getMessages();
-    print(messages); /* prints arr */
-    messages.forEach(message => { /* typerror, I'm going insane */
+}).then(data => {
+    data.Messages.forEach(message => {
         chatfunc(message.Author, message.Content);
     });
     chatfunc('System', `Welcome, ${Username}!`);
-})();
+    const socket = new WebSocket(`ws://${location.host}`);
+    socket.onopen = () => {
+        print('Socket opened successfully!');
+        socket.send(JSON.stringify({
+            Type: 'Connect',
+            Author: Username,
+            Content: null
+        }));
+    }
+    socket.onmessage = e => {
+        let data = JSON.parse(e.data);
+        if (data.Type == 'Connect') {
+            chatfunc('System', `${data.Author} has connected!`);
+        }else if (data.Type == 'Message') {
+            chatfunc(data.Author, data.Content);
+        }else{
+            print(`Improper data received (Could not parse data type ${data.Type})`);
+        }
+    }
+    socket.onclose = () => {
+        alert('Connection closed unexpectedly, reloading.');
+        location.reload();
+    }
+    document.body.addEventListener('keypress', e => {
+        if (e.key == '/') {
+            let message = prompt('Enter message:');
+            chatfunc(Username, message);
+            chatRequest(message);
+        }
+    });
+});

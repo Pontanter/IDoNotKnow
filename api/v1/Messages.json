@@ -1,5 +1,5 @@
 {
     "Messages": [
-        {"Author":"potato_man","Content":"Hello, this is a test message."}
+        {"Author":"System","Content":"Hello, world!"}
     ]
 }
