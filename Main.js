@@ -27,6 +27,16 @@ const main = newEle('div', document.body, {
 const messagesHolder = newEle('div', main, {
     id: 'messagesHolder'
 });
+const GitHyperlink = newEle('a', main, {
+    id: 'GitHyperlink',
+    href: 'https://github.com/Pontanter/IDoNotKnow',
+    target: '_blank'
+})
+const GitRepo = newEle('img', GitHyperlink, {
+    id: 'GitRepo',
+    src: 'api/imgs/gitLogo.png',
+    alt: 'Github Repo'
+})
 
 const chatfunc = (name,content) => {
     newEle('span', messagesHolder, {
@@ -360,6 +370,11 @@ modifyStyle(messagesHolder, {
     fontWeight: 'bold',
     scrollbarColor: '#aa2500 #000',
     scrollbarWidth: 'auto',
+});
+modifyStyle(GitRepo, {
+    width: 'clamp(45px, 75px, 75px)',
+    height: 'clamp(45px, 75px, 75px)',
+    zIndex: '9999'
 });
 let Username = null;
 let ready = false;
