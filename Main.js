@@ -38,7 +38,19 @@ const GitRepo = newEle('img', GitHyperlink, {
     alt: 'Github Repo'
 })
 
+if (Notification.permission == 'denied') {
+    Notification.requestPermission();
+    /* no reason to ask more than once */
+}
 const chatfunc = (name,content) => {
+    if (name != Username && ready) {
+        const sfx = new Audio('api/sounds/notification.mp3');
+        sfx.volume = 0.2;
+        sfx.play();
+        if (Notification.permission === 'granted' && document.visibilityState == 'hidden') {
+            new Notification(name, {body: content}).onclick = () => { window.focus(); }
+        }
+    }
     newEle('span', messagesHolder, {
         class: 'message',
         innerText: `[${name}]: ${content}`
