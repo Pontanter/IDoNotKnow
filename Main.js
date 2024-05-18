@@ -371,10 +371,30 @@ modifyStyle(messagesHolder, {
     scrollbarColor: '#aa2500 #000',
     scrollbarWidth: 'auto',
 });
-modifyStyle(GitRepo, {
+modifyStyle(GitHyperlink, {
     width: 'clamp(45px, 75px, 75px)',
     height: 'clamp(45px, 75px, 75px)',
-    zIndex: '9999'
+    zIndex: '101',
+    display: 'inline-block'
+})
+modifyStyle(GitRepo, {
+    width: '100%',
+    height: '100%',
+    transition: '250ms',
+    borderRadius: '50%',
+    display: 'block'
+});
+GitRepo.addEventListener('mouseover', () => {
+    modifyStyle(GitRepo, {
+        boxShadow: '0 0 20px rgba(0,0,0,.9)',
+        filter: 'invert(1)'
+    });
+});
+GitRepo.addEventListener('mouseout', () => {
+    modifyStyle(GitRepo, {
+        boxShadow: 'none',
+        filter: 'invert(0)'
+    });
 });
 let Username = null;
 let ready = false;
