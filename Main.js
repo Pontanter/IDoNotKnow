@@ -260,6 +260,7 @@ async function prompt(title,content,placeholder='Text..') {
             color: '#ffaa00'
         });
     });
+    input.autocomplete = 'off';
     let val;
     const finish = () => {
         modifyStyle(promptHolder, {
@@ -376,7 +377,7 @@ setTimeout(() => {
                 didWork = false;
             }
         }
-        if (didWork) ready = true; /* this doesn't work yet, fixing lat0r!! */
+        ready = didWork;
     })();
 }, 1000);
 // const Username = 'placeholder';
@@ -412,4 +413,4 @@ setTimeout(() => {
             }
         });
     });
-})
+})();
