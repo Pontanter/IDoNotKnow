@@ -1,0 +1,2 @@
+http-server (npm install http-server) (QOL, not required)
+express (npm install express) (required)

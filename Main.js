@@ -37,6 +37,29 @@ const GitRepo = newEle('img', GitHyperlink, {
     src: 'api/imgs/gitLogo.png',
     alt: 'Github Repo'
 })
+const settingsBtn = newEle('button', main, {
+    id: 'settingsBtn'
+});
+const settingsImg = newEle('img', settingsBtn, {
+    id: 'settingsImg',
+    src: 'api/imgs/SettingsIcon.svg',
+    alt: 'Settings'
+})
+const settingsContainer = newEle('div', main, {
+    id: 'settingsContainer'
+});
+const settingsTitle = newEle('h1', settingsContainer, {
+    id: 'settingsTitle',
+    innerText: 'Settings'
+});
+const notificationsSetting = newEle('input', settingsContainer, {
+    id: 'notificationsSetting',
+    type: 'checkbox'
+});
+const notificationsLabel = newEle('div', settingsContainer, {
+    id: 'notificationsLabel',
+    innerText: 'Push Notifications'
+});
 
 if (Notification.permission == 'denied') {
     Notification.requestPermission();
@@ -47,7 +70,7 @@ const chatfunc = (name,content) => {
         const sfx = new Audio('api/sounds/notification.mp3');
         sfx.volume = 0.2;
         sfx.play();
-        if (Notification.permission === 'granted' && document.visibilityState == 'hidden') {
+        if (Notification.permission === 'granted' && document.visibilityState == 'hidden' && localStorage.getItem('NotificationsEnabled') == 'yes') {
             new Notification(name, {body: content}).onclick = () => { window.focus(); }
         }
     }
@@ -173,6 +196,76 @@ async function alert(title,content) {
         await new Promise(resolve => setTimeout(resolve, 1));
     }
     return true;
+}
+let smallAlerts = -1;
+const smallAlert = (title,content,lifetime) => {
+    smallAlerts++;
+    const alertHolder = newEle('div', document.body, {
+        id: 'alertHolder'
+    });
+    const title_ele = newEle('h1', alertHolder, {
+        id: 'alertTitle',
+        innerText: title
+    });
+    const content_ele = newEle('p', alertHolder, {
+        id: 'alertContent',
+        innerText: content
+    });
+    modifyStyle(alertHolder, {
+        width: '25%',
+        height: '15%',
+        display: 'flex',
+        justifyContent: 'center',
+        zIndex: '100',
+        backgroundColor: 'rgba(0, 0, 0, .25)',
+        backdropFilter: 'blur(5px)',
+        borderRadius: '15px',
+        color: '#fff',
+        position: 'absolute',
+        left: '100%', /* 95% */
+        top: `${95-(smallAlerts*17.5)}%`,
+        transform: 'translate(100%, -100%)', /* -100%, -100% */
+        transition: '.5s'
+    });
+    modifyStyle(title_ele, {
+        fontSize: 'clamp(1rem, 2.5vw, 2.5rem)',
+        fontFamily: 'Consolas',
+        fontWeight: 'bold',
+        margin: '0',
+        padding: '0',
+        textAlign: 'center',
+        userSelect: 'none',
+        color: '#fff',
+        transition: '.5s'
+    });
+    modifyStyle(content_ele, {
+        fontSize: 'clamp(.5rem, 1vw, 1rem)',
+        fontFamily: 'Consolas',
+        fontWeight: 'bold',
+        margin: '0',
+        padding: '0',
+        textAlign: 'center',
+        position: 'absolute',
+        top: '25%',
+        color: '#fff',
+        transition: '.5s'
+    });
+    setTimeout(() => {
+        modifyStyle(alertHolder, {
+            left: '95%',
+            transform: 'translate(-100%, -100%)'
+        });
+        setTimeout(() => {
+            modifyStyle(alertHolder, {
+                left: '100%',
+                transform: 'translate(100%, -100%)'
+            });
+            smallAlerts--;
+            setTimeout(() => {
+                alertHolder.remove();
+            }, 500);
+        }, 500+lifetime*1000);
+    }, 10);
 }
 async function prompt(title,content,placeholder='Text..') {
     isBusy = true;
@@ -384,8 +477,8 @@ modifyStyle(messagesHolder, {
     scrollbarWidth: 'auto',
 });
 modifyStyle(GitHyperlink, {
-    width: 'clamp(45px, 75px, 75px)',
-    height: 'clamp(45px, 75px, 75px)',
+    width: 'clamp(25px, 45px, 45px)',
+    height: 'clamp(25px, 45px, 45px)',
     zIndex: '101',
     display: 'inline-block'
 })
@@ -395,6 +488,76 @@ modifyStyle(GitRepo, {
     transition: '250ms',
     borderRadius: '50%',
     display: 'block'
+});
+modifyStyle(settingsBtn, {
+    width: 'clamp(25px, 45px, 45px)',
+    height: 'clamp(25px, 45px, 45px)',
+    zIndex: '101',
+    display: 'inline-block',
+    backgroundColor: 'rgba(0,0,0,0)',
+    border: 'none',
+    borderRadius: '50%',
+    position: 'absolute',
+    left: '100%',
+    top: '100%',
+    transform: 'translate(-100%, -100%)',
+    cursor: 'pointer'
+});
+modifyStyle(settingsImg, {
+    width: '125%',
+    height: '100%',
+    transition: '250ms',
+    display: 'block'
+});
+modifyStyle(settingsContainer, {
+    width: '25%',
+    height: '25%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'rgba(0, 0, 0, .1)',
+    backdropFilter: 'blur(5px)',
+    borderRadius: '15px',
+    color: '#fff',
+    position: 'absolute',
+    left: '100%',
+    top: '95%',
+    transform: 'translate(-50%, -50%) scale(0)',
+    zIndex: '100',
+    transition: '250ms'
+});
+modifyStyle(settingsTitle, {
+    fontSize: 'clamp(1rem, 2.5vw, 2.5rem)',
+    fontFamily: 'Consolas',
+    fontWeight: 'bold',
+    margin: '0',
+    padding: '0',
+    textAlign: 'center',
+    userSelect: 'none',
+    color: '#fff'
+});
+modifyStyle(notificationsSetting, { /* checkbox */
+    width: 'clamp(15px, 25px, 25px)',
+    height: 'clamp(15px, 25px, 25px)',
+    display: 'inline-block',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    position: 'absolute',
+    left: '0%',
+    top: '25%',
+    transform: 'translateY(-100%)',
+    cursor: 'pointer'
+});
+modifyStyle(notificationsLabel, { /* text */
+    fontSize: 'clamp(.75rem, 1.75vw, 1.75rem)',
+    fontFamily: 'Consolas',
+    fontWeight: 'bold',
+    margin: '0',
+    padding: '0',
+    textAlign: 'center',
+    position: 'absolute',
+    left: '25%',
+    top: '25%',
+    transform: 'translateY(-100%)',
+    color: '#fff'
 });
 GitRepo.addEventListener('mouseover', () => {
     modifyStyle(GitRepo, {
@@ -407,6 +570,45 @@ GitRepo.addEventListener('mouseout', () => {
         boxShadow: 'none',
         filter: 'invert(0)'
     });
+});
+if (localStorage.getItem('NotificationsEnabled') == 'yes') {
+    notificationsSetting.checked = true;
+} else {
+    notificationsSetting.checked = false;
+}
+notificationsSetting.addEventListener('click', () => {
+    if (notificationsSetting.checked) {
+        localStorage.setItem('NotificationsEnabled', 'yes');
+    } else {
+        localStorage.setItem('NotificationsEnabled', 'no');
+    }
+});
+let settingsOpen = false;
+let settingsBusy = false;
+settingsBtn.addEventListener('click', () => {
+    if (!settingsBusy) { /* prevent spamming which can break some stuff */
+        settingsBusy = true;
+        setTimeout(() => {
+            settingsBusy = false;
+        }, 500);
+        if (!settingsOpen) {
+            modifyStyle(settingsImg, {
+                transform: 'rotate(90deg)'
+            });
+            modifyStyle(settingsContainer, {
+                transform: 'translate(-100%, -100%) scale(1)'
+            });
+            settingsOpen = true;
+        } else {
+            modifyStyle(settingsImg, {
+                transform: 'rotate(0deg)'
+            });
+            modifyStyle(settingsContainer, {
+                transform: 'translate(-50%, -50%) scale(0)'
+            });
+            settingsOpen = false;
+        }
+    }
 });
 let Username = null;
 let ready = false;
@@ -446,6 +648,9 @@ setTimeout(() => {
             chatfunc(message.Author, message.Content);
         });
         chatfunc('System', `Welcome, ${Username}!`);
+        setTimeout(() => {
+            smallAlert('Joined','Joined the chatroom successfully - say hi!\n\n\'/\' - Send Message',2);
+        }, 250);
         document.body.addEventListener('keyup', e => {
             if (e.key == '/' && !isBusy) {
                 (async () => {
